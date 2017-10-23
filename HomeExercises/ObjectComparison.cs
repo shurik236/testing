@@ -13,19 +13,41 @@ namespace HomeExercises
 			var actualTsar = TsarRegistry.GetCurrentTsar();
 
 			var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
-				new Person("Vasili III of Russia", 28, 170, 60, null));
+				new Person("Vasili III of Russia", 28, 170, 60, 
+                new Person("Ivan III of Russia", 65, 172, 71, null)));
 
-			// Перепишите код на использование Fluent Assertions.
-			Assert.AreEqual(actualTsar.Name, expectedTsar.Name);
-			Assert.AreEqual(actualTsar.Age, expectedTsar.Age);
-			Assert.AreEqual(actualTsar.Height, expectedTsar.Height);
-			Assert.AreEqual(actualTsar.Weight, expectedTsar.Weight);
+            // Перепишите код на использование Fluent Assertions.
+            // Переписал.
 
-			Assert.AreEqual(expectedTsar.Parent.Name, actualTsar.Parent.Name);
-			Assert.AreEqual(expectedTsar.Parent.Age, actualTsar.Parent.Age);
-			Assert.AreEqual(expectedTsar.Parent.Height, actualTsar.Parent.Height);
-			Assert.AreEqual(expectedTsar.Parent.Parent, actualTsar.Parent.Parent);
+            actualTsar.Name.ShouldBeEquivalentTo(expectedTsar.Name);
+            actualTsar.Age.ShouldBeEquivalentTo(expectedTsar.Age);
+            actualTsar.Height.ShouldBeEquivalentTo(expectedTsar.Height);
+            actualTsar.Weight.ShouldBeEquivalentTo(expectedTsar.Weight);
+
+            actualTsar.Parent.Name.ShouldBeEquivalentTo(expectedTsar.Parent.Name);
+            actualTsar.Parent.Age.ShouldBeEquivalentTo(expectedTsar.Parent.Age);
+            actualTsar.Parent.Height.ShouldBeEquivalentTo(expectedTsar.Parent.Height);
+
+            //actualTsar.Parent.Parent.ShouldBeEquivalentTo(expectedTsar.Parent.Parent); Id?!
+
+		    AreEqual(actualTsar.Parent.Parent, expectedTsar.Parent.Parent).Should().BeTrue();
+            //Если сравнение нуллов принципиально
+		    AreEqual(actualTsar.Parent.Parent.Parent, expectedTsar.Parent.Parent.Parent).Should().BeTrue();
 		}
+
+	    [Test]
+	    [Description("Еще одно решение с использованием правил исключения полей/свойств")]
+	    public void CheckCurrentTsar_WithExclusionRules()
+	    {
+	        var actualTsar = TsarRegistry.GetCurrentTsar();
+	        var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
+	            new Person("Vasili III of Russia", 28, 170, 60,
+	                new Person("Ivan III of Russia", 65, 172, 71, null)));
+
+	        actualTsar.ShouldBeEquivalentTo(expectedTsar, options => options
+	            .IncludingFields()
+	            .Excluding(o => o.SelectedMemberPath.EndsWith("Id")));
+        }
 
 		[Test]
 		[Description("Альтернативное решение. Какие у него недостатки?")]
@@ -33,10 +55,16 @@ namespace HomeExercises
 		{
 			var actualTsar = TsarRegistry.GetCurrentTsar();
 			var expectedTsar = new Person("Ivan IV The Terrible", 54, 170, 70,
-			new Person("Vasili III of Russia", 28, 170, 60, null));
+			    new Person("Vasili III of Russia", 28, 170, 60,
+			    new Person("Ivan III of Russia", 65, 172, 71, null)));
 
-			// Какие недостатки у такого подхода? 
-			Assert.True(AreEqual(actualTsar, expectedTsar));
+            //q: Какие недостатки у такого подхода? 
+            //a: При добавлении новых полей их придется также прописывать и в методе AreEqual.
+		    //Появляется неудобная зависимость от того, как именно сравниваются объекты.
+            //А еще тесты, написанные с помощью FluidAssertions приятнее читать чем стену двойных равенств, 
+            //даже если список правил разрастется.
+
+            Assert.True(AreEqual(actualTsar, expectedTsar));
 
 		}
 
@@ -59,8 +87,10 @@ namespace HomeExercises
 		{
 			return new Person(
 				"Ivan IV The Terrible", 54, 170, 70,
-				new Person("Vasili III of Russia", 28, 170, 60, null));
+				new Person("Vasili III of Russia", 28, 170, 60,
+				new Person("Ivan III of Russia", 65, 172, 71, null)));
 		}
+        //Добавил еще и деда. Цари должны лучше знать свою родословную)
 	}
 
 	public class Person
