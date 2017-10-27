@@ -16,23 +16,16 @@ namespace HomeExercises
 				new Person("Vasili III of Russia", 28, 170, 60, 
                 new Person("Ivan III of Russia", 65, 172, 71, null)));
 
-            // Перепишите код на использование Fluent Assertions.
-            // Переписал.
+            actualTsar.Name.Should().Be(expectedTsar.Name);
+            actualTsar.Age.Should().Be(expectedTsar.Age);
+            actualTsar.Height.Should().Be(expectedTsar.Height);
+            actualTsar.Weight.Should().Be(expectedTsar.Weight);
 
-            actualTsar.Name.ShouldBeEquivalentTo(expectedTsar.Name);
-            actualTsar.Age.ShouldBeEquivalentTo(expectedTsar.Age);
-            actualTsar.Height.ShouldBeEquivalentTo(expectedTsar.Height);
-            actualTsar.Weight.ShouldBeEquivalentTo(expectedTsar.Weight);
-
-            actualTsar.Parent.Name.ShouldBeEquivalentTo(expectedTsar.Parent.Name);
-            actualTsar.Parent.Age.ShouldBeEquivalentTo(expectedTsar.Parent.Age);
-            actualTsar.Parent.Height.ShouldBeEquivalentTo(expectedTsar.Parent.Height);
-
-            //actualTsar.Parent.Parent.ShouldBeEquivalentTo(expectedTsar.Parent.Parent); Id?!
-
-		    AreEqual(actualTsar.Parent.Parent, expectedTsar.Parent.Parent).Should().BeTrue();
-            //Если сравнение нуллов принципиально
-		    AreEqual(actualTsar.Parent.Parent.Parent, expectedTsar.Parent.Parent.Parent).Should().BeTrue();
+            actualTsar.Parent.Name.Should().Be(expectedTsar.Parent.Name);
+            actualTsar.Parent.Age.Should().Be(expectedTsar.Parent.Age);
+            actualTsar.Parent.Height.Should().Be(expectedTsar.Parent.Height);
+		    actualTsar.Parent.Parent.ShouldBeEquivalentTo(expectedTsar.Parent.Parent, options => options
+                .Excluding(o => o.Id));
 		}
 
 	    [Test]
@@ -45,7 +38,6 @@ namespace HomeExercises
 	                new Person("Ivan III of Russia", 65, 172, 71, null)));
 
 	        actualTsar.ShouldBeEquivalentTo(expectedTsar, options => options
-	            .IncludingFields()
 	            .Excluding(o => o.SelectedMemberPath.EndsWith("Id")));
         }
 
@@ -90,7 +82,6 @@ namespace HomeExercises
 				new Person("Vasili III of Russia", 28, 170, 60,
 				new Person("Ivan III of Russia", 65, 172, 71, null)));
 		}
-        //Добавил еще и деда. Цари должны лучше знать свою родословную)
 	}
 
 	public class Person
